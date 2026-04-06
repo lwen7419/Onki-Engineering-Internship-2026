@@ -625,7 +625,7 @@
 // Config
 // ─────────────────────────────────────────────────────────────
 const API_URL  = 'https://api.anthropic.com/v1/messages';
-const MODEL    = 'claude-sonnet-4-6';
+const MODEL    = 'claude-haiku-4-5-20251001';
 const CSV_FILE = 'Assignment wine dataset - Sheet1.csv';
 
 // ─────────────────────────────────────────────────────────────
@@ -633,7 +633,7 @@ const CSV_FILE = 'Assignment wine dataset - Sheet1.csv';
 // ─────────────────────────────────────────────────────────────
 let wines       = [];
 let apiKey      = localStorage.getItem('wineApiKey') || '';
-let history     = [];          // [{role, content}, …] sent to Claude
+let history     = [];          // [{role, parts}, …] sent to Gemini
 let isListening = false;
 let recognition = null;
 let currentUtterance = null;
@@ -785,7 +785,7 @@ function findMatchingWines(query) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Claude API
+// Gemini API
 // ─────────────────────────────────────────────────────────────
 function buildSystemPrompt() {
   return `You are a warm, knowledgeable sommelier at an upscale wine shop. Help customers find the perfect bottle.
@@ -807,7 +807,7 @@ Inventory (${wines.length} wines):
 ${JSON.stringify(wines)}`;
 }
 
-async function callClaude(question) {
+async function callGemini(question) {
   if (!apiKey) throw new Error('No API key — please enter and save your Anthropic API key above.');
 
   // Hard-enforce no hallucination when the inventory clearly has no match
@@ -845,10 +845,11 @@ async function callClaude(question) {
   }
 
   const data   = await res.json();
-  const answer = data.content?.[0]?.text ?? 'I couldn\'t generate a response — please try again.';
+  const answer = data.content?.[0]?.text
+    ?? 'I couldn\'t generate a response — please try again.';
 
   // Persist original question (not augmented) so follow-up context reads naturally
-  history.push({ role: 'user', content: question });
+  history.push({ role: 'user',      content: question });
   history.push({ role: 'assistant', content: answer });
 
   return answer;
@@ -871,7 +872,7 @@ async function ask(question) {
   setStatus('Thinking…', 'thinking');
 
   try {
-    const answer = await callClaude(question);
+    const answer = await callGemini(question);
     removeNode(loadId);
     addMessage('bot', answer);
     speak(answer);
