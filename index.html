@@ -8,20 +8,20 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0c0108;
-      --surface:     #1a0812;
-      --surface2:    #240e1a;
-      --border:      rgba(201, 168, 76, 0.18);
-      --gold:        #c9a84c;
-      --gold-glow:   rgba(201, 168, 76, 0.25);
+      --bg:          #faf4ec;
+      --surface:     #f2e8d8;
+      --surface2:    #e8dac8;
+      --border:      rgba(140, 100, 40, 0.2);
+      --gold:        #8b6914;
+      --gold-glow:   rgba(139, 105, 20, 0.2);
       --wine:        #7a1728;
       --wine-bright: #a82038;
-      --text:        #f0dcc8;
-      --text-muted:  #8a6858;
-      --user-bg:     rgba(201, 168, 76, 0.1);
-      --bot-bg:      rgba(255, 255, 255, 0.05);
-      --green:       #5a9e6a;
-      --red:         #d05050;
+      --text:        #2c1a0a;
+      --text-muted:  #8a6848;
+      --user-bg:     rgba(139, 105, 20, 0.08);
+      --bot-bg:      rgba(0, 0, 0, 0.03);
+      --green:       #2a6a3a;
+      --red:         #b02020;
     }
 
     html, body {
@@ -45,7 +45,7 @@
     header {
       padding: 14px 20px 10px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(to bottom, rgba(122,23,40,0.18), transparent);
+      background: linear-gradient(to bottom, rgba(122,23,40,0.07), transparent);
       flex-shrink: 0;
     }
 
@@ -76,7 +76,7 @@
     }
     .api-row input {
       flex: 1;
-      background: rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.04);
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 6px 10px;
@@ -150,13 +150,13 @@
     }
     .message.user .msg-bubble {
       background: var(--user-bg);
-      border: 1px solid rgba(201,168,76,0.28);
+      border: 1px solid rgba(139,105,20,0.3);
       border-radius: 14px 14px 3px 14px;
-      color: #f5e4cc;
+      color: var(--text);
     }
     .message.bot .msg-bubble {
       background: var(--bot-bg);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid rgba(0,0,0,0.08);
       border-radius: 3px 14px 14px 14px;
       color: var(--text);
     }
@@ -213,7 +213,7 @@
     footer {
       padding: 14px 20px 18px;
       border-top: 1px solid var(--border);
-      background: linear-gradient(to top, rgba(12,1,8,0.95), transparent);
+      background: linear-gradient(to top, rgba(245,237,224,0.97), transparent);
       flex-shrink: 0;
     }
 
@@ -252,7 +252,7 @@
       animation: pulseGold 1.6s ease-in-out infinite;
     }
     @keyframes pulseGold {
-      0%,100% { box-shadow: 0 0 0 0   rgba(201,168,76,0.5); }
+      0%,100% { box-shadow: 0 0 0 0   rgba(139,105,20,0.4); }
       50%      { box-shadow: 0 0 0 18px rgba(201,168,76,0); }
     }
 
@@ -290,7 +290,7 @@
     }
     .text-row input {
       flex: 1;
-      background: rgba(255,255,255,0.04);
+      background: rgba(0,0,0,0.04);
       border: 1px solid var(--border);
       border-radius: 9px;
       padding: 9px 14px;
@@ -1242,10 +1242,10 @@ function drawVintageChart() {
   // Grid lines
   for (let i = 1; i <= 4; i++) {
     const gy = padT + chartH - (i / 4) * chartH;
-    ctx.strokeStyle = 'rgba(201,168,76,0.08)';
+    ctx.strokeStyle = 'rgba(140,100,40,0.12)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W - padR, gy); ctx.stroke();
-    ctx.fillStyle = 'rgba(138,104,88,0.7)';
+    ctx.fillStyle = 'rgba(80,50,20,0.65)';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(Math.round((i / 4) * maxCount), padL - 3, gy + 3);
@@ -1267,7 +1267,7 @@ function drawVintageChart() {
   });
 
   // X-axis labels
-  ctx.fillStyle = 'rgba(138,104,88,0.85)';
+  ctx.fillStyle = 'rgba(80,50,20,0.8)';
   ctx.font = '10px sans-serif';
   ctx.textAlign = 'center';
   const labelStep = allYears.length <= 20 ? 2 : allYears.length <= 40 ? 5 : 10;
@@ -1311,18 +1311,18 @@ function drawScatterPlot() {
   // Grid lines + Y labels
   for (let i = 0; i <= 4; i++) {
     const gy = padT + (i / 4) * chartH;
-    ctx.strokeStyle = 'rgba(201,168,76,0.08)';
+    ctx.strokeStyle = 'rgba(140,100,40,0.12)';
     ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W - padR, gy); ctx.stroke();
     const score = Math.round(maxScore - (i / 4) * scoreRange);
-    ctx.fillStyle = 'rgba(138,104,88,0.7)';
+    ctx.fillStyle = 'rgba(80,50,20,0.65)';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(score, padL - 4, gy + 3);
   }
 
   // X labels
-  ctx.fillStyle = 'rgba(138,104,88,0.7)';
+  ctx.fillStyle = 'rgba(80,50,20,0.65)';
   ctx.font = '10px sans-serif';
   ctx.textAlign = 'center';
   [0, 0.25, 0.5, 0.75, 1].forEach(t => {
@@ -1331,11 +1331,11 @@ function drawScatterPlot() {
 
   const colorMap = {
     Red: 'rgba(168,32,56,0.85)',
-    White: 'rgba(230,210,185,0.85)',
+    White: 'rgba(150,120,60,0.8)',
     'Rosé': 'rgba(220,120,140,0.85)',
     Sparkling: 'rgba(201,168,76,0.85)',
     Orange: 'rgba(200,130,50,0.85)',
-    Other: 'rgba(138,104,88,0.7)',
+    Other: 'rgba(80,50,20,0.65)',
   };
 
   // Store point positions for hover
@@ -1350,7 +1350,7 @@ function drawScatterPlot() {
     ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
     ctx.fillStyle = colorMap[normalizeColor(p.wine.color)] || colorMap.Other;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.1)';
     ctx.lineWidth = 0.5;
     ctx.stroke();
   });
@@ -1363,7 +1363,7 @@ function drawScatterPlot() {
     ctx.arc(lx + 5, padT - 12, 4, 0, Math.PI * 2);
     ctx.fillStyle = colorMap[label];
     ctx.fill();
-    ctx.fillStyle = 'rgba(138,104,88,0.9)';
+    ctx.fillStyle = 'rgba(80,50,20,0.8)';
     ctx.font = '10px sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText(label, lx + 12, padT - 8);
