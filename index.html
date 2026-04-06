@@ -323,6 +323,171 @@
       margin-top: 8px;
       font-style: italic;
     }
+
+    /* ── Tab bar ── */
+    .tab-bar {
+      display: flex;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    .tab-panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .tab-panel.active { display: flex; }
+
+    /* ── Explore panel ── */
+    #explore {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 20px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    #explore::-webkit-scrollbar { width: 4px; }
+    #explore::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Stats bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .stat-value { font-size: 20px; color: var(--gold); }
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* Filter row label */
+    .filter-group { display: flex; flex-direction: column; gap: 8px; }
+    .filter-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Color tabs */
+    .color-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .color-tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 12.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .color-tab.active { background: var(--wine); border-color: var(--wine-bright); color: var(--text); }
+    .color-tab:hover:not(.active) { border-color: rgba(201,168,76,0.3); color: var(--text); }
+
+    /* Price tiers */
+    .price-tiers { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tier-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tier-btn.active { background: rgba(201,168,76,0.12); border-color: var(--gold); color: var(--gold); }
+    .tier-btn:hover:not(.active) { border-color: rgba(201,168,76,0.3); color: var(--text); }
+
+    /* Charts */
+    .chart-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .chart-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+    .chart-section canvas { width: 100%; display: block; }
+
+    /* Wine card grid */
+    .cards-heading {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+      font-weight: normal;
+    }
+    .wine-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 10px;
+    }
+    .wine-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .wine-card:hover { border-color: rgba(201,168,76,0.4); background: var(--surface2); }
+    .card-name { font-size: 13px; color: var(--text); margin-bottom: 3px; line-height: 1.3; }
+    .card-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .card-price { font-size: 14px; color: var(--gold); }
+    .card-score {
+      font-size: 11px;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 4px;
+      padding: 2px 6px;
+      color: var(--gold);
+    }
+    .card-vintage { font-size: 11px; color: var(--text-muted); }
+    .no-results { text-align: center; color: var(--text-muted); font-style: italic; padding: 30px; font-size: 14px; }
+
+    /* Scatter tooltip */
+    #scatter-tip {
+      position: fixed;
+      display: none;
+      background: var(--surface2);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      color: var(--text);
+      pointer-events: none;
+      z-index: 100;
+      max-width: 280px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -344,6 +509,15 @@
     </div>
     <div id="status">Initializing…</div>
   </header>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('chat')">Chat</button>
+    <button class="tab-btn" onclick="switchTab('explore')">Explore</button>
+  </div>
+
+  <!-- Chat panel -->
+  <div class="tab-panel active" id="chat-panel">
 
   <!-- Conversation -->
   <main id="conversation">
@@ -382,7 +556,69 @@
     </div>
     <div id="noMicNote">Voice input unavailable — please type your question</div>
   </footer>
+
+  </div><!-- /chat-panel -->
+
+  <!-- Explore panel -->
+  <div class="tab-panel" id="explore-panel">
+    <div id="explore">
+
+      <!-- Stats bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-label">Bottles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-price">—</div>
+          <div class="stat-label">Avg Price</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-score">—</div>
+          <div class="stat-label">Avg Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-years">—</div>
+          <div class="stat-label">Vintages</div>
+        </div>
+      </div>
+
+      <!-- Color filter -->
+      <div class="filter-group">
+        <div class="filter-label">Color</div>
+        <div class="color-tabs" id="color-tabs"></div>
+      </div>
+
+      <!-- Price tier filter -->
+      <div class="filter-group">
+        <div class="filter-label">Price</div>
+        <div class="price-tiers" id="price-tiers"></div>
+      </div>
+
+      <!-- Vintage bar chart -->
+      <div class="chart-section">
+        <div class="chart-title">Bottles by Vintage</div>
+        <canvas id="vintage-canvas"></canvas>
+      </div>
+
+      <!-- Score vs. price scatter -->
+      <div class="chart-section">
+        <div class="chart-title">Score vs. Price</div>
+        <canvas id="scatter-canvas"></canvas>
+      </div>
+
+      <!-- Wine card grid -->
+      <div>
+        <div class="cards-heading" id="cards-heading"></div>
+        <div class="wine-grid" id="wine-grid"></div>
+      </div>
+
+    </div>
+  </div><!-- /explore-panel -->
+
 </div>
+
+<div id="scatter-tip"></div>
 
 <script>
 // ─────────────────────────────────────────────────────────────
@@ -484,6 +720,7 @@ async function loadWines() {
     const raw  = parseCSV(text);
     wines = raw.map(processWine).filter(w => w.name && w.price !== null);
     setStatus(`Ready — ${wines.length} wines in inventory`, 'ready');
+    renderDashboard();
   } catch (err) {
     console.error(err);
     setStatus('⚠ Could not load wine data. Open via a local server: python3 -m http.server 8080', 'error');
@@ -786,6 +1023,374 @@ function speak(text) {
   } else {
     synth.addEventListener('voiceschanged', doSpeak, { once: true });
   }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Tab switching
+// ─────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[tab === 'chat' ? 0 : 1].classList.add('active');
+  document.getElementById(tab + '-panel').classList.add('active');
+  if (tab === 'explore') redrawCharts();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Dashboard
+// ─────────────────────────────────────────────────────────────
+let dashActiveColor = 'All';
+let dashActiveTier  = 'All';
+
+function normalizeColor(color) {
+  const c = (color || '').toLowerCase();
+  if (c.includes('sparkling') || c.includes('champagne') || c.includes('cava') || c.includes('prosecco') || c.includes('cremant') || c.includes('crémant')) return 'Sparkling';
+  if (c.includes('ros')) return 'Rosé';
+  if (c.includes('white') || c.includes('blanc')) return 'White';
+  if (c.includes('orange') || c.includes('amber')) return 'Orange';
+  if (c.includes('red') || c.includes('rouge')) return 'Red';
+  return 'Other';
+}
+
+function priceTier(price) {
+  if (price == null) return 'Other';
+  if (price < 30)  return 'Under $30';
+  if (price < 75)  return '$30–$75';
+  if (price < 150) return '$75–$150';
+  return '$150+';
+}
+
+function renderDashboard() {
+  renderStats();
+  renderColorTabs();
+  renderPriceTiers();
+  filterAndRender();
+  drawVintageChart();
+  drawScatterPlot();
+}
+
+function redrawCharts() {
+  drawVintageChart();
+  drawScatterPlot();
+}
+
+function renderStats() {
+  const prices = wines.map(w => w.price).filter(p => p != null);
+  const scores = wines.map(w => w.score).filter(s => s != null);
+  const years  = wines.map(w => parseInt(w.vintage)).filter(y => !isNaN(y) && y > 1900);
+
+  const avgPrice = prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+  const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+
+  document.getElementById('stat-total').textContent = wines.length;
+  document.getElementById('stat-price').textContent = prices.length ? '$' + Math.round(avgPrice) : '—';
+  document.getElementById('stat-score').textContent = avgScore ?? '—';
+  document.getElementById('stat-years').textContent = years.length
+    ? Math.min(...years) + '–' + Math.max(...years) : '—';
+}
+
+function renderColorTabs() {
+  const counts = { All: wines.length };
+  wines.forEach(w => { const c = normalizeColor(w.color); counts[c] = (counts[c] || 0) + 1; });
+
+  const order = ['All', 'Red', 'White', 'Rosé', 'Sparkling', 'Orange', 'Other'];
+  const container = document.getElementById('color-tabs');
+  container.innerHTML = '';
+  order.forEach(label => {
+    if (!counts[label]) return;
+    const btn = document.createElement('button');
+    btn.className = 'color-tab' + (label === dashActiveColor ? ' active' : '');
+    btn.textContent = label + ' (' + counts[label] + ')';
+    btn.onclick = () => {
+      dashActiveColor = label;
+      container.querySelectorAll('.color-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterAndRender();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function renderPriceTiers() {
+  const tiers = ['All', 'Under $30', '$30–$75', '$75–$150', '$150+'];
+  const counts = { All: wines.length };
+  wines.forEach(w => { const t = priceTier(w.price); counts[t] = (counts[t] || 0) + 1; });
+
+  const container = document.getElementById('price-tiers');
+  container.innerHTML = '';
+  tiers.forEach(label => {
+    const n = counts[label];
+    if (!n && label !== 'All') return;
+    const btn = document.createElement('button');
+    btn.className = 'tier-btn' + (label === dashActiveTier ? ' active' : '');
+    btn.textContent = n ? label + ' (' + n + ')' : label;
+    btn.onclick = () => {
+      dashActiveTier = label;
+      container.querySelectorAll('.tier-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterAndRender();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function getFilteredWines() {
+  return wines.filter(w => {
+    const colorOk = dashActiveColor === 'All' || normalizeColor(w.color) === dashActiveColor;
+    const tierOk  = dashActiveTier  === 'All' || priceTier(w.price) === dashActiveTier;
+    return colorOk && tierOk;
+  });
+}
+
+function filterAndRender() {
+  renderWineCards(getFilteredWines());
+}
+
+function renderWineCards(list) {
+  const grid    = document.getElementById('wine-grid');
+  const heading = document.getElementById('cards-heading');
+  heading.textContent = list.length + ' wine' + (list.length !== 1 ? 's' : '');
+
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="no-results">No wines match these filters.</div>';
+    return;
+  }
+
+  const sorted = [...list].sort((a, b) => {
+    if ((b.score ?? 0) !== (a.score ?? 0)) return (b.score ?? 0) - (a.score ?? 0);
+    return (a.price ?? 0) - (b.price ?? 0);
+  });
+
+  const colorEmoji = { Red: '🔴', White: '⚪', 'Rosé': '🌸', Sparkling: '✨', Orange: '🟠' };
+
+  grid.innerHTML = sorted.map(w => {
+    const dot  = colorEmoji[normalizeColor(w.color)] || '⚫';
+    const meta = [w.producer, w.appellation || w.region, w.country].filter(Boolean).join(' · ');
+    const name = w.name.replace(/"/g, '&quot;');
+    return `
+      <div class="wine-card" onclick="askAboutWine(&quot;${name}&quot;)">
+        <div class="card-name">${dot} ${sanitize(w.name)}</div>
+        <div class="card-meta">${sanitize(meta)}</div>
+        <div class="card-footer">
+          <span class="card-price">${w.price != null ? '$' + w.price.toFixed(0) : '—'}</span>
+          ${w.vintage ? `<span class="card-vintage">${sanitize(String(w.vintage))}</span>` : ''}
+          ${w.score   ? `<span class="card-score">${w.score}pts</span>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function askAboutWine(name) {
+  switchTab('chat');
+  const input = document.getElementById('textInput');
+  input.value = 'Tell me about the ' + name;
+  input.focus();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Canvas helper
+// ─────────────────────────────────────────────────────────────
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// ─────────────────────────────────────────────────────────────
+// Vintage bar chart
+// ─────────────────────────────────────────────────────────────
+function drawVintageChart() {
+  const canvas = document.getElementById('vintage-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  const counts = {};
+  wines.forEach(w => {
+    const y = parseInt(w.vintage);
+    if (!isNaN(y) && y > 1900 && y <= new Date().getFullYear())
+      counts[y] = (counts[y] || 0) + 1;
+  });
+
+  const years = Object.keys(counts).map(Number).sort((a, b) => a - b);
+  if (years.length === 0) return;
+
+  const allYears = [];
+  for (let y = years[0]; y <= years[years.length - 1]; y++) allYears.push(y);
+
+  const maxCount = Math.max(...Object.values(counts));
+  const W = canvas.offsetWidth || 680;
+  const H = 160;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const padL = 28, padR = 10, padT = 10, padB = 28;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const slotW  = chartW / allYears.length;
+  const barW   = Math.max(2, slotW - 1);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines
+  for (let i = 1; i <= 4; i++) {
+    const gy = padT + chartH - (i / 4) * chartH;
+    ctx.strokeStyle = 'rgba(201,168,76,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W - padR, gy); ctx.stroke();
+    ctx.fillStyle = 'rgba(138,104,88,0.7)';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round((i / 4) * maxCount), padL - 3, gy + 3);
+  }
+
+  // Bars
+  allYears.forEach((year, i) => {
+    const count = counts[year] || 0;
+    if (!count) return;
+    const barH = (count / maxCount) * chartH;
+    const x = padL + i * slotW;
+    const y = padT + chartH - barH;
+    const grad = ctx.createLinearGradient(0, y, 0, padT + chartH);
+    grad.addColorStop(0, 'rgba(168,32,56,0.9)');
+    grad.addColorStop(1, 'rgba(122,23,40,0.4)');
+    ctx.fillStyle = grad;
+    roundRect(ctx, x + 0.5, y, barW, barH, 2);
+    ctx.fill();
+  });
+
+  // X-axis labels
+  ctx.fillStyle = 'rgba(138,104,88,0.85)';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  const labelStep = allYears.length <= 20 ? 2 : allYears.length <= 40 ? 5 : 10;
+  allYears.forEach((year, i) => {
+    if (year % labelStep === 0) {
+      ctx.fillText(year, padL + i * slotW + barW / 2, H - padB + 13);
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// Score vs. price scatter plot
+// ─────────────────────────────────────────────────────────────
+function drawScatterPlot() {
+  const canvas = document.getElementById('scatter-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  const plotWines = wines.filter(w => w.price != null && w.score != null);
+  if (plotWines.length === 0) return;
+
+  const W = canvas.offsetWidth || 680;
+  const H = 200;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const padL = 34, padR = 14, padT = 24, padB = 28;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  const maxPrice = Math.max(...plotWines.map(w => w.price));
+  const minScore = Math.min(...plotWines.map(w => w.score));
+  const maxScore = Math.max(...plotWines.map(w => w.score));
+  const scoreRange = maxScore - minScore || 1;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid lines + Y labels
+  for (let i = 0; i <= 4; i++) {
+    const gy = padT + (i / 4) * chartH;
+    ctx.strokeStyle = 'rgba(201,168,76,0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, gy); ctx.lineTo(W - padR, gy); ctx.stroke();
+    const score = Math.round(maxScore - (i / 4) * scoreRange);
+    ctx.fillStyle = 'rgba(138,104,88,0.7)';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(score, padL - 4, gy + 3);
+  }
+
+  // X labels
+  ctx.fillStyle = 'rgba(138,104,88,0.7)';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+    ctx.fillText('$' + Math.round(t * maxPrice), padL + t * chartW, H - padB + 13);
+  });
+
+  const colorMap = {
+    Red: 'rgba(168,32,56,0.85)',
+    White: 'rgba(230,210,185,0.85)',
+    'Rosé': 'rgba(220,120,140,0.85)',
+    Sparkling: 'rgba(201,168,76,0.85)',
+    Orange: 'rgba(200,130,50,0.85)',
+    Other: 'rgba(138,104,88,0.7)',
+  };
+
+  // Store point positions for hover
+  canvas._points = plotWines.map(w => ({
+    x: padL + (w.price / maxPrice) * chartW,
+    y: padT + ((maxScore - w.score) / scoreRange) * chartH,
+    wine: w,
+  }));
+
+  canvas._points.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = colorMap[normalizeColor(p.wine.color)] || colorMap.Other;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  });
+
+  // Legend
+  const legendItems = ['Red', 'White', 'Rosé', 'Sparkling'];
+  let lx = padL;
+  legendItems.forEach(label => {
+    ctx.beginPath();
+    ctx.arc(lx + 5, padT - 12, 4, 0, Math.PI * 2);
+    ctx.fillStyle = colorMap[label];
+    ctx.fill();
+    ctx.fillStyle = 'rgba(138,104,88,0.9)';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, lx + 12, padT - 8);
+    lx += ctx.measureText(label).width + 24;
+  });
+
+  // Hover
+  canvas.onmousemove = e => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const tip = document.getElementById('scatter-tip');
+    const nearest = canvas._points.reduce((best, p) => {
+      const d = Math.hypot(p.x - mx, p.y - my);
+      return !best || d < best.d ? { ...p, d } : best;
+    }, null);
+    if (nearest && nearest.d < 14) {
+      tip.style.display = 'block';
+      tip.style.left = (e.clientX + 14) + 'px';
+      tip.style.top  = (e.clientY - 28) + 'px';
+      const w = nearest.wine;
+      tip.textContent = w.name + ' — $' + w.price.toFixed(0) + ' · ' + w.score + 'pts';
+    } else {
+      tip.style.display = 'none';
+    }
+  };
+  canvas.onmouseleave = () => { document.getElementById('scatter-tip').style.display = 'none'; };
 }
 
 // ─────────────────────────────────────────────────────────────
