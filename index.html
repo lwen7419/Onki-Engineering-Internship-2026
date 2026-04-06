@@ -191,7 +191,7 @@
     }
     .welcome p { font-size: 14px; margin-bottom: 18px; }
 
-    .suggestions { display: flex; flex-direction: column; gap: 8px; }
+    .suggested-questions { display: flex; flex-direction: column; gap: 8px; }
     .sug-btn {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -351,7 +351,7 @@
       <div class="welcome-icon">🍷</div>
       <h2>Ask me anything about our wines</h2>
       <p>Tap the microphone or type your question below.</p>
-      <div class="suggestions">
+      <div class="suggested-questions">
         <button class="sug-btn" onclick="ask('Which are the best-rated wines under $50?')">
           Which are the best-rated wines under $50?
         </button>
@@ -519,6 +519,35 @@ function processWine(row) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Inventory pre-filter
+// ─────────────────────────────────────────────────────────────
+const STOP_WORDS = new Set([
+  'what','which','have','from','that','this','with','would','make','good',
+  'best','most','some','tell','about','your','wine','wines','bottle','bottles',
+  'under','over','like','want','looking','give','find','show','suggest',
+  'recommended','recommend','please','could','should','can','are','the',
+  'and','for','any','you','more','than','price','rated','rating','score',
+]);
+
+function findMatchingWines(query) {
+  const tokens = query.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(t => t.length > 3 && !STOP_WORDS.has(t));
+
+  // No meaningful tokens — can't reliably determine a mismatch, don't restrict
+  if (tokens.length === 0) return wines;
+
+  return wines.filter(w => {
+    const haystack = [
+      w.name, w.producer, w.appellation, w.country,
+      w.region, w.varietal, w.color, String(w.vintage ?? ''),
+    ].join(' ').toLowerCase();
+    return tokens.some(t => haystack.includes(t));
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
 // Claude API
 // ─────────────────────────────────────────────────────────────
 function buildSystemPrompt() {
@@ -544,9 +573,18 @@ ${JSON.stringify(wines)}`;
 async function callClaude(question) {
   if (!apiKey) throw new Error('No API key — please enter and save your Anthropic API key above.');
 
+  // Hard-enforce no hallucination when the inventory clearly has no match
+  let augmented = question;
+  if (wines.length > 0 && findMatchingWines(question).length === 0) {
+    augmented =
+      '[Inventory check: no wines in stock match the keywords in this query. ' +
+      'You MUST tell the customer this item is not carried, then suggest the closest alternative from the inventory.]\n\n' +
+      question;
+  }
+
   // Keep last 8 turns to bound context growth
   const recent = history.slice(-8);
-  recent.push({ role: 'user', content: question });
+  recent.push({ role: 'user', content: augmented });
 
   const res = await fetch(API_URL, {
     method: 'POST',
@@ -572,7 +610,7 @@ async function callClaude(question) {
   const data   = await res.json();
   const answer = data.content?.[0]?.text ?? 'I couldn\'t generate a response — please try again.';
 
-  // Persist full history for follow-ups
+  // Persist original question (not augmented) so follow-up context reads naturally
   history.push({ role: 'user', content: question });
   history.push({ role: 'assistant', content: answer });
 
