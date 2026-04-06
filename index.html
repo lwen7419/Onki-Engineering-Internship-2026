@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wine Sommelier</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0c0108;
+      --surface:     #1a0812;
+      --surface2:    #240e1a;
+      --border:      rgba(201, 168, 76, 0.18);
+      --gold:        #c9a84c;
+      --gold-glow:   rgba(201, 168, 76, 0.25);
+      --wine:        #7a1728;
+      --wine-bright: #a82038;
+      --text:        #f0dcc8;
+      --text-muted:  #8a6858;
+      --user-bg:     rgba(201, 168, 76, 0.1);
+      --bot-bg:      rgba(255, 255, 255, 0.05);
+      --green:       #5a9e6a;
+      --red:         #d05050;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Georgia', 'Times New Roman', serif;
+      line-height: 1.65;
+    }
+
+    /* ── Layout ── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      max-width: 740px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 14px 20px 10px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(to bottom, rgba(122,23,40,0.18), transparent);
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .brand-icon { font-size: 28px; line-height: 1; }
+    .brand h1 {
+      font-size: 20px;
+      font-weight: normal;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+    }
+    .brand p {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .api-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .api-row input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .api-row input:focus { border-color: var(--gold-glow); }
+    .api-row input::placeholder { color: var(--text-muted); }
+    .api-row button {
+      background: var(--wine);
+      border: none;
+      border-radius: 6px;
+      color: #f0dcc8;
+      padding: 6px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .api-row button:hover { background: var(--wine-bright); }
+
+    #status {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+      min-height: 18px;
+    }
+    #status.ready    { color: var(--green); }
+    #status.error    { color: var(--red); }
+    #status.thinking { color: var(--gold); }
+
+    /* ── Conversation ── */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px;
+      scroll-behavior: smooth;
+    }
+    main::-webkit-scrollbar { width: 4px; }
+    main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 22px;
+      animation: fadeUp 0.28s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user { align-items: flex-end; }
+    .message.bot  { align-items: flex-start; }
+
+    .msg-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .msg-bubble {
+      max-width: 82%;
+      padding: 12px 16px;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .message.user .msg-bubble {
+      background: var(--user-bg);
+      border: 1px solid rgba(201,168,76,0.28);
+      border-radius: 14px 14px 3px 14px;
+      color: #f5e4cc;
+    }
+    .message.bot .msg-bubble {
+      background: var(--bot-bg);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 3px 14px 14px 14px;
+      color: var(--text);
+    }
+
+    /* Loading dots */
+    .dots { display: flex; gap: 5px; padding: 3px 0; }
+    .dots span {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 100% { opacity: 0.3; transform: translateY(0); }
+      50%       { opacity: 1;   transform: translateY(-5px); }
+    }
+
+    /* Empty / welcome state */
+    .welcome {
+      text-align: center;
+      padding: 40px 20px 20px;
+      color: var(--text-muted);
+    }
+    .welcome .welcome-icon { font-size: 52px; margin-bottom: 14px; }
+    .welcome h2 {
+      font-size: 19px;
+      font-weight: normal;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .welcome p { font-size: 14px; margin-bottom: 18px; }
+
+    .suggestions { display: flex; flex-direction: column; gap: 8px; }
+    .sug-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      padding: 9px 16px;
+      font-size: 13.5px;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .sug-btn:hover {
+      border-color: rgba(201,168,76,0.4);
+      background: var(--surface2);
+    }
+
+    /* ── Footer / Input ── */
+    footer {
+      padding: 14px 20px 18px;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(to top, rgba(12,1,8,0.95), transparent);
+      flex-shrink: 0;
+    }
+
+    .mic-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    #micBtn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: var(--wine);
+      border: 3px solid var(--wine-bright);
+      color: white;
+      font-size: 26px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.25s, border-color 0.25s, transform 0.15s;
+      position: relative;
+    }
+    #micBtn:hover:not(:disabled) {
+      background: var(--wine-bright);
+      transform: scale(1.06);
+    }
+    #micBtn:disabled { cursor: default; }
+
+    /* Listening: gold pulse */
+    #micBtn.listening {
+      background: var(--gold);
+      border-color: #e8c060;
+      animation: pulseGold 1.6s ease-in-out infinite;
+    }
+    @keyframes pulseGold {
+      0%,100% { box-shadow: 0 0 0 0   rgba(201,168,76,0.5); }
+      50%      { box-shadow: 0 0 0 18px rgba(201,168,76,0); }
+    }
+
+    /* Processing: slow rotate ring */
+    #micBtn.processing {
+      background: #333;
+      border-color: #555;
+      animation: spinRing 1.2s linear infinite;
+    }
+    @keyframes spinRing {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Speaking: blue pulse */
+    #micBtn.speaking {
+      background: #1a3a60;
+      border-color: #2a5a90;
+      animation: pulseBlue 2s ease-in-out infinite;
+    }
+    @keyframes pulseBlue {
+      0%,100% { box-shadow: 0 0 0 0   rgba(42,90,144,0.5); }
+      50%      { box-shadow: 0 0 0 18px rgba(42,90,144,0); }
+    }
+
+    #micLabel {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .text-row {
+      display: flex;
+      gap: 8px;
+    }
+    .text-row input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .text-row input:focus { border-color: rgba(201,168,76,0.3); }
+    .text-row input::placeholder { color: var(--text-muted); }
+    .text-row button {
+      background: var(--wine);
+      border: none;
+      border-radius: 9px;
+      color: #f0dcc8;
+      padding: 9px 22px;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .text-row button:hover { background: var(--wine-bright); }
+
+    #noMicNote {
+      display: none;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 8px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span class="brand-icon">🍷</span>
+      <div>
+        <h1>Wine Sommelier</h1>
+        <p>Your personal wine advisor</p>
+      </div>
+    </div>
+    <div class="api-row">
+      <input type="password" id="apiKeyInput"
+             placeholder="Anthropic API key (sk-ant-…)" />
+      <button onclick="saveApiKey()">Save</button>
+    </div>
+    <div id="status">Initializing…</div>
+  </header>
+
+  <!-- Conversation -->
+  <main id="conversation">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">🍷</div>
+      <h2>Ask me anything about our wines</h2>
+      <p>Tap the microphone or type your question below.</p>
+      <div class="suggestions">
+        <button class="sug-btn" onclick="ask('Which are the best-rated wines under $50?')">
+          Which are the best-rated wines under $50?
+        </button>
+        <button class="sug-btn" onclick="ask('What do you have from Burgundy?')">
+          What do you have from Burgundy?
+        </button>
+        <button class="sug-btn" onclick="ask('What\'s the most expensive bottle you have?')">
+          What's the most expensive bottle you have?
+        </button>
+        <button class="sug-btn" onclick="ask('Which bottles would make a good housewarming gift?')">
+          Which bottles would make a good housewarming gift?
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Input / mic -->
+  <footer>
+    <div class="mic-area">
+      <button id="micBtn" onclick="toggleListening()" title="Tap to speak">🎤</button>
+      <div id="micLabel">Tap to ask</div>
+    </div>
+    <div class="text-row">
+      <input type="text" id="textInput"
+             placeholder="Or type your question here…"
+             onkeydown="if(event.key==='Enter') submitText()" />
+      <button onclick="submitText()">Ask</button>
+    </div>
+    <div id="noMicNote">Voice input unavailable — please type your question</div>
+  </footer>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// Config
+// ─────────────────────────────────────────────────────────────
+const API_URL  = 'https://api.anthropic.com/v1/messages';
+const MODEL    = 'claude-sonnet-4-6';
+const CSV_FILE = 'Assignment wine dataset - Sheet1.csv';
+
+// ─────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────
+let wines       = [];
+let apiKey      = localStorage.getItem('wineApiKey') || '';
+let history     = [];          // [{role, content}, …] sent to Claude
+let isListening = false;
+let recognition = null;
+let currentUtterance = null;
+const synth     = window.speechSynthesis;
+let msgId       = 0;
+
+// ─────────────────────────────────────────────────────────────
+// Boot
+// ─────────────────────────────────────────────────────────────
+window.addEventListener('load', async () => {
+  if (apiKey) document.getElementById('apiKeyInput').value = apiKey;
+  setupRecognition();
+  await loadWines();
+});
+
+// ─────────────────────────────────────────────────────────────
+// API key
+// ─────────────────────────────────────────────────────────────
+function saveApiKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val) { setStatus('Please enter a valid API key.', 'error'); return; }
+  apiKey = val;
+  localStorage.setItem('wineApiKey', apiKey);
+  setStatus('API key saved.', 'ready');
+}
+
+// ─────────────────────────────────────────────────────────────
+// Status
+// ─────────────────────────────────────────────────────────────
+function setStatus(msg, cls = '') {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = cls;
+}
+
+// ─────────────────────────────────────────────────────────────
+// CSV parser (handles quoted fields with "" escaping)
+// ─────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQ = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], nx = text[i + 1];
+    if (inQ) {
+      if (ch === '"' && nx === '"') { field += '"'; i++; }
+      else if (ch === '"')           { inQ = false; }
+      else                           { field += ch; }
+    } else {
+      if      (ch === '"')                           { inQ = true; }
+      else if (ch === ',')                           { row.push(field); field = ''; }
+      else if (ch === '\n' || (ch === '\r' && nx === '\n')) {
+        if (ch === '\r') i++;
+        row.push(field); field = '';
+        if (row.some(f => f)) rows.push(row);
+        row = [];
+      } else if (ch === '\r') {
+        row.push(field); field = '';
+        if (row.some(f => f)) rows.push(row);
+        row = [];
+      } else { field += ch; }
+    }
+  }
+  if (field || row.length) { row.push(field); if (row.some(f => f)) rows.push(row); }
+
+  if (rows.length < 2) return [];
+  const headers = rows[0];
+  return rows.slice(1).map(vals => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i] ?? '').trim(); });
+    return obj;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// Load & process wines
+// ─────────────────────────────────────────────────────────────
+async function loadWines() {
+  setStatus('Loading wine inventory…');
+  try {
+    const res = await fetch(CSV_FILE);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const raw  = parseCSV(text);
+    wines = raw.map(processWine).filter(w => w.name && w.price !== null);
+    setStatus(`Ready — ${wines.length} wines in inventory`, 'ready');
+  } catch (err) {
+    console.error(err);
+    setStatus('⚠ Could not load wine data. Open via a local server: python3 -m http.server 8080', 'error');
+  }
+}
+
+function processWine(row) {
+  // Parse professional ratings JSON
+  let ratings = [];
+  try { if (row.professional_ratings) ratings = JSON.parse(row.professional_ratings); }
+  catch {}
+  const valid = ratings.filter(r => typeof r.score === 'number' && r.score > 0);
+  const best  = valid.reduce((b, r) => (!b || r.score > b.score ? r : b), null);
+  const avg   = valid.length ? Math.round(valid.reduce((s,r) => s + r.score, 0) / valid.length) : null;
+
+  return {
+    name:       row.Name || '',
+    producer:   row.Producer || '',
+    appellation:row.Appellation || '',
+    country:    row.Country || '',
+    region:     row.Region || '',
+    varietal:   row.Varietal || '',
+    vintage:    row.Vintage || '',
+    price:      row.Retail ? parseFloat(row.Retail) : null,
+    color:      row.color || '',
+    abv:        row.ABV ? parseFloat(row.ABV) : null,
+    score:      best?.score ?? avg ?? null,
+    reviewer:   best?.source ?? null,
+    // Truncate note so the dataset fits comfortably in context
+    note:       best?.note ? best.note.replace(/\s+/g, ' ').substring(0, 160) : null,
+    volume_ml:  parseInt(row.volume_ml) || 750,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Claude API
+// ─────────────────────────────────────────────────────────────
+function buildSystemPrompt() {
+  return `You are a warm, knowledgeable sommelier at an upscale wine shop. Help customers find the perfect bottle.
+
+Your answers will be read aloud, so keep them conversational and under 150 words. Avoid bullet lists — use flowing sentences.
+
+Rules:
+- Only recommend wines from the inventory below.
+- "price" is USD retail; compare prices accurately.
+- "score" is a professional rating out of 100 (higher = better). Average across sources when multiple exist.
+- For "best rated under $X": filter where price ≤ X, rank by score, mention the top 2–3.
+- For region/origin questions: search "appellation", "region", and "country" fields (case-insensitive). "Burgundy" maps to appellation/region containing "BOURGOGNE" or "Burgundy" or country "France" with region "Burgundy".
+- For gift questions: suggest 2–3 wines with warm, specific reasons.
+- If the inventory has no match, say so gracefully and pivot to something close.
+- Never invent wines not in the inventory.
+- Do not mention scores unless the customer asks for ratings.
+
+Inventory (${wines.length} wines):
+${JSON.stringify(wines)}`;
+}
+
+async function callClaude(question) {
+  if (!apiKey) throw new Error('No API key — please enter and save your Anthropic API key above.');
+
+  // Keep last 8 turns to bound context growth
+  const recent = history.slice(-8);
+  recent.push({ role: 'user', content: question });
+
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 400,
+      system: buildSystemPrompt(),
+      messages: recent,
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error?.message || `API error ${res.status}`);
+  }
+
+  const data   = await res.json();
+  const answer = data.content?.[0]?.text ?? 'I couldn\'t generate a response — please try again.';
+
+  // Persist full history for follow-ups
+  history.push({ role: 'user', content: question });
+  history.push({ role: 'assistant', content: answer });
+
+  return answer;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Main ask flow
+// ─────────────────────────────────────────────────────────────
+async function ask(question) {
+  question = question.trim();
+  if (!question) return;
+
+  // Remove welcome screen on first question
+  document.getElementById('welcome')?.remove();
+
+  addMessage('user', question);
+  document.getElementById('textInput').value = '';
+
+  const loadId = addLoading();
+  setStatus('Thinking…', 'thinking');
+
+  try {
+    const answer = await callClaude(question);
+    removeNode(loadId);
+    addMessage('bot', answer);
+    speak(answer);
+    setStatus(`Ready — ${wines.length} wines in inventory`, 'ready');
+  } catch (err) {
+    removeNode(loadId);
+    addMessage('bot', `Sorry — ${err.message}`);
+    setStatus('Error — check console for details', 'error');
+    console.error(err);
+  }
+}
+
+function submitText() {
+  ask(document.getElementById('textInput').value);
+}
+
+// ─────────────────────────────────────────────────────────────
+// Conversation UI
+// ─────────────────────────────────────────────────────────────
+function addMessage(role, text) {
+  const id  = `m${++msgId}`;
+  const conv = document.getElementById('conversation');
+  const div  = document.createElement('div');
+  div.className = `message ${role}`;
+  div.id = id;
+  div.innerHTML = `
+    <div class="msg-label">${role === 'user' ? 'You' : '🍷 Sommelier'}</div>
+    <div class="msg-bubble">${sanitize(text)}</div>`;
+  conv.appendChild(div);
+  conv.scrollTop = conv.scrollHeight;
+  return id;
+}
+
+function addLoading() {
+  const id   = `m${++msgId}`;
+  const conv = document.getElementById('conversation');
+  const div  = document.createElement('div');
+  div.className = 'message bot';
+  div.id = id;
+  div.innerHTML = `
+    <div class="msg-label">🍷 Sommelier</div>
+    <div class="msg-bubble"><div class="dots"><span></span><span></span><span></span></div></div>`;
+  conv.appendChild(div);
+  conv.scrollTop = conv.scrollHeight;
+  return id;
+}
+
+function removeNode(id) { document.getElementById(id)?.remove(); }
+
+function sanitize(str) {
+  return str
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>');
+}
+
+// ─────────────────────────────────────────────────────────────
+// Voice input (SpeechRecognition)
+// ─────────────────────────────────────────────────────────────
+function setupRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    document.querySelector('.mic-area').style.display = 'none';
+    document.getElementById('noMicNote').style.display = 'block';
+    return;
+  }
+  recognition = new SR();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = e => {
+    const transcript = e.results[0][0].transcript;
+    document.getElementById('textInput').value = transcript;
+    stopListening();
+    ask(transcript);
+  };
+  recognition.onerror = e => {
+    stopListening();
+    if (e.error !== 'no-speech') setStatus(`Mic error: ${e.error}`, 'error');
+    else setStatus(`Ready — ${wines.length} wines in inventory`, 'ready');
+  };
+  recognition.onend = () => { if (isListening) stopListening(); };
+}
+
+function toggleListening() {
+  if (!recognition) return;
+  isListening ? stopListening() : startListening();
+}
+
+function startListening() {
+  synth.cancel(); // stop any ongoing speech
+  isListening = true;
+  recognition.start();
+  setMicState('listening', '⏹', 'Listening…');
+  setStatus('Listening — speak now', 'thinking');
+}
+
+function stopListening() {
+  isListening = false;
+  recognition?.stop();
+  setMicState('', '🎤', 'Tap to ask');
+  setStatus(`Ready — ${wines.length} wines in inventory`, 'ready');
+}
+
+// ─────────────────────────────────────────────────────────────
+// Voice output (SpeechSynthesis)
+// ─────────────────────────────────────────────────────────────
+function speak(text) {
+  if (!synth) return;
+  synth.cancel();
+
+  // Strip emoji and markdown for cleaner TTS
+  const clean = text
+    .replace(/[🍷🥂🍾🎤🔊]/g, '')
+    .replace(/\*\*/g, '')
+    .replace(/\n/g, ' ')
+    .trim();
+
+  const doSpeak = () => {
+    const utt = new SpeechSynthesisUtterance(clean);
+    utt.rate   = 0.94;
+    utt.pitch  = 1.0;
+    utt.volume = 1.0;
+
+    // Prefer a natural-sounding English voice
+    const voices = synth.getVoices();
+    const picked = voices.find(v => v.name === 'Samantha')
+      || voices.find(v => v.lang === 'en-US' && v.localService)
+      || voices.find(v => v.lang.startsWith('en-'));
+    if (picked) utt.voice = picked;
+
+    utt.onstart = () => {
+      currentUtterance = utt;
+      setMicState('speaking', '🔊', 'Speaking…');
+    };
+    const done = () => {
+      currentUtterance = null;
+      setMicState('', '🎤', 'Tap to ask');
+    };
+    utt.onend   = done;
+    utt.onerror = done;
+
+    synth.speak(utt);
+  };
+
+  // Voices may not be ready on first call
+  if (synth.getVoices().length > 0) {
+    doSpeak();
+  } else {
+    synth.addEventListener('voiceschanged', doSpeak, { once: true });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Mic button helper
+// ─────────────────────────────────────────────────────────────
+function setMicState(cls, icon, label) {
+  const btn = document.getElementById('micBtn');
+  btn.className = cls;
+  btn.textContent = icon;
+  document.getElementById('micLabel').textContent = label;
+}
+</script>
+</body>
+</html>
