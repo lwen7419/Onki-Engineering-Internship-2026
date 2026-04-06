@@ -1070,19 +1070,20 @@ function renderDashboard() {
 }
 
 function redrawCharts() {
-  drawVintageChart();
-  drawScatterPlot();
+  const filtered = getFilteredWines();
+  drawVintageChart(filtered);
+  drawScatterPlot(filtered);
 }
 
-function renderStats() {
-  const prices = wines.map(w => w.price).filter(p => p != null);
-  const scores = wines.map(w => w.score).filter(s => s != null);
-  const years  = wines.map(w => parseInt(w.vintage)).filter(y => !isNaN(y) && y > 1900);
+function renderStats(list = wines) {
+  const prices = list.map(w => w.price).filter(p => p != null);
+  const scores = list.map(w => w.score).filter(s => s != null);
+  const years  = list.map(w => parseInt(w.vintage)).filter(y => !isNaN(y) && y > 1900);
 
   const avgPrice = prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
   const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
 
-  document.getElementById('stat-total').textContent = wines.length;
+  document.getElementById('stat-total').textContent = list.length;
   document.getElementById('stat-price').textContent = prices.length ? '$' + Math.round(avgPrice) : '—';
   document.getElementById('stat-score').textContent = avgScore ?? '—';
   document.getElementById('stat-years').textContent = years.length
@@ -1143,7 +1144,11 @@ function getFilteredWines() {
 }
 
 function filterAndRender() {
-  renderWineCards(getFilteredWines());
+  const filtered = getFilteredWines();
+  renderStats(filtered);
+  renderWineCards(filtered);
+  drawVintageChart(filtered);
+  drawScatterPlot(filtered);
 }
 
 function renderWineCards(list) {
@@ -1204,14 +1209,14 @@ function roundRect(ctx, x, y, w, h, r) {
 // ─────────────────────────────────────────────────────────────
 // Vintage bar chart
 // ─────────────────────────────────────────────────────────────
-function drawVintageChart() {
+function drawVintageChart(list = wines) {
   const canvas = document.getElementById('vintage-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
 
   const counts = {};
-  wines.forEach(w => {
+  list.forEach(w => {
     const y = parseInt(w.vintage);
     if (!isNaN(y) && y > 1900 && y <= new Date().getFullYear())
       counts[y] = (counts[y] || 0) + 1;
@@ -1281,13 +1286,13 @@ function drawVintageChart() {
 // ─────────────────────────────────────────────────────────────
 // Score vs. price scatter plot
 // ─────────────────────────────────────────────────────────────
-function drawScatterPlot() {
+function drawScatterPlot(list = wines) {
   const canvas = document.getElementById('scatter-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
 
-  const plotWines = wines.filter(w => w.price != null && w.score != null);
+  const plotWines = list.filter(w => w.price != null && w.score != null);
   if (plotWines.length === 0) return;
 
   const W = canvas.offsetWidth || 680;
