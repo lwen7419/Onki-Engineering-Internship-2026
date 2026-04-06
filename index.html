@@ -792,6 +792,10 @@ function buildSystemPrompt() {
 
 Your answers will be read aloud, so keep them conversational and under 150 words. Avoid bullet lists — use flowing sentences.
 
+Language:
+- Never use the word "exotic" or similar othering language to describe wines from any region or country.
+- Describe wines by their actual character — flavors, texture, origin — not by how "foreign" or "unusual" they seem.
+
 Rules:
 - Only recommend wines from the inventory below.
 - "price" is USD retail; compare prices accurately.
@@ -984,24 +988,50 @@ function speak(text) {
   if (!synth) return;
   synth.cancel();
 
-  // Strip emoji and markdown for cleaner TTS
+  // Clean up text for more natural TTS delivery
   const clean = text
-    .replace(/[🍷🥂🍾🎤🔊]/g, '')
-    .replace(/\*\*/g, '')
-    .replace(/\n/g, ' ')
+    // Remove emoji
+    .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+    // Remove markdown bold/italic
+    .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
+    // Expand common abbreviations TTS stumbles on
+    .replace(/\bNV\b/g, 'non-vintage')
+    .replace(/\bABV\b/gi, 'alcohol by volume')
+    .replace(/\$(\d+)/g, '$1 dollars')
+    // Turn dashes used as asides into commas for natural pausing
+    .replace(/ — /g, ', ')
+    .replace(/ - /g, ', ')
+    // Collapse whitespace
+    .replace(/\n+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
     .trim();
 
   const doSpeak = () => {
     const utt = new SpeechSynthesisUtterance(clean);
-    utt.rate   = 0.94;
+
+    // Slightly slower than default for a calm, unhurried sommelier feel
+    utt.rate   = 0.88;
     utt.pitch  = 1.0;
     utt.volume = 1.0;
 
-    // Prefer a natural-sounding English voice
+    // Voice priority: prefer enhanced/premium local voices, then any natural en-US
     const voices = synth.getVoices();
-    const picked = voices.find(v => v.name === 'Samantha')
-      || voices.find(v => v.lang === 'en-US' && v.localService)
-      || voices.find(v => v.lang.startsWith('en-'));
+    const picked =
+      // macOS enhanced voices (much less robotic)
+      voices.find(v => v.name === 'Samantha (Enhanced)')  ||
+      voices.find(v => v.name === 'Karen (Enhanced)')     ||
+      voices.find(v => v.name === 'Daniel (Enhanced)')    ||
+      voices.find(v => v.name === 'Moira (Enhanced)')     ||
+      // macOS standard local voices
+      voices.find(v => v.name === 'Samantha')             ||
+      voices.find(v => v.name === 'Karen')                ||
+      voices.find(v => v.name === 'Daniel')               ||
+      // Any local (on-device) English voice
+      voices.find(v => v.lang === 'en-US' && v.localService) ||
+      voices.find(v => v.lang === 'en-GB' && v.localService) ||
+      // Fallback: any English voice
+      voices.find(v => v.lang.startsWith('en'));
+
     if (picked) utt.voice = picked;
 
     utt.onstart = () => {
