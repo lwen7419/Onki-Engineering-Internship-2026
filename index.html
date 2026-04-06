@@ -633,7 +633,7 @@ const CSV_FILE = 'Assignment wine dataset - Sheet1.csv';
 // ─────────────────────────────────────────────────────────────
 let wines       = [];
 let apiKey      = localStorage.getItem('wineApiKey') || '';
-let history     = [];          // [{role, parts}, …] sent to Gemini
+let history     = [];          // [{role, content}, …] sent to Claude
 let isListening = false;
 let recognition = null;
 let currentUtterance = null;
@@ -785,7 +785,7 @@ function findMatchingWines(query) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Gemini API
+// Claude API
 // ─────────────────────────────────────────────────────────────
 function buildSystemPrompt() {
   return `You are a warm, knowledgeable sommelier at an upscale wine shop. Help customers find the perfect bottle.
@@ -811,7 +811,7 @@ Inventory (${wines.length} wines):
 ${JSON.stringify(wines)}`;
 }
 
-async function callGemini(question) {
+async function callClaude(question) {
   if (!apiKey) throw new Error('No API key — please enter and save your Anthropic API key above.');
 
   // Hard-enforce no hallucination when the inventory clearly has no match
@@ -876,7 +876,7 @@ async function ask(question) {
   setStatus('Thinking…', 'thinking');
 
   try {
-    const answer = await callGemini(question);
+    const answer = await callClaude(question);
     removeNode(loadId);
     addMessage('bot', answer);
     speak(answer);
